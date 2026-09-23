@@ -17,7 +17,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -41,11 +40,6 @@ public class MainActivity extends Activity {
         splash.setOrientation(LinearLayout.VERTICAL);
         splash.setGravity(Gravity.CENTER);
         splash.setPadding(48, 48, 48, 48);
-
-        ImageView logo = new ImageView(this);
-        logo.setImageResource(com.somar.representacoes.R.mipmap.icon_192);
-        logo.setAdjustViewBounds(true);
-        splash.addView(logo, new LinearLayout.LayoutParams(180, 180));
 
         TextView title = new TextView(this);
         title.setText("Somar Representações");

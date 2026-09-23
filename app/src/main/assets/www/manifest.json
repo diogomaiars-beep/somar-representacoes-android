@@ -1,7 +1,7 @@
 {
-  "name": "Somar Representações",
+  "name": "Somar Catálogos",
   "short_name": "Somar",
-  "description": "Catálogos da Somar Representações",
+  "description": "Catálogos da Somar Catálogos",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f5f7fb",
