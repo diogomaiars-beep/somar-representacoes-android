@@ -11,14 +11,14 @@ function render(){
  const list=catalogs.filter(c=>(active==='Todos'||c.category===active)&&(!q||`${c.name} ${c.brand} ${c.category} ${c.description||''}`.toLowerCase().includes(q)));
  document.getElementById('count').textContent=list.length;
  document.getElementById('grid').innerHTML=list.length?list.map(c=>{
-   const cover=c.cover_url?`<img src="${esc(c.cover_url)}" alt="Capa de ${esc(c.name)}" loading="lazy">`:`<img class="fallback-logo" src="somar-logo.png" alt="Somar Representações" loading="lazy">`;
+   const cover=c.cover_url?`<img src="${esc(c.cover_url)}" alt="Capa de ${esc(c.name)}" loading="lazy">`:`<div class="fallback-cover"><img src="somar-logo.png" alt="Somar Representações"><strong>${esc(c.name)}</strong><span>${esc(c.category||'Catálogo')}</span></div>`;
    return `<article class="card"><button class="card-main" onclick='openCatalog(${js(c.id)})'><div class="cover">${cover}<span class="tag">${esc(c.category)}</span></div><div class="body"><div class="brand-name">${esc(c.brand||'Somar Representações')}</div><h3>${esc(c.name)}</h3><p>${esc(c.description||'Consulte o catálogo de produtos.')}</p></div></button><div class="card-actions"><button class="btn primary" onclick='openCatalog(${js(c.id)})'>Ver catálogo</button><button class="btn" onclick='shareCatalogById(${js(c.id)})'>Compartilhar</button></div></article>`;
  }).join(''):'<div class="empty"><strong>Nenhum catálogo encontrado.</strong><span>Tente outra busca ou selecione “Todos”.</span></div>';
 }
 function getCatalog(id){return catalogs.find(c=>String(c.id)===String(id))}
 function openCatalog(id){
  const c=getCatalog(id); if(!c)return;
- const cover=c.cover_url?`<img src="${esc(c.cover_url)}" alt="Capa de ${esc(c.name)}">`:`<img class="fallback-logo detail-logo" src="somar-logo.png" alt="Somar Representações">`;
+ const cover=c.cover_url?`<img src="${esc(c.cover_url)}" alt="Capa de ${esc(c.name)}">`:`<div class="fallback-cover detail-fallback"><img src="somar-logo.png" alt="Somar Representações"><strong>${esc(c.name)}</strong><span>${esc(c.category||'Catálogo')}</span></div>`;
  const url=esc(c.pdf_url||'#');
  document.getElementById('modal').innerHTML=`<div class="modal-backdrop" onclick="closeCatalog(event)"><div class="modal" onclick="event.stopPropagation()"><button class="close" onclick="closeCatalog()" aria-label="Fechar">×</button><div class="detail-cover">${cover}</div><div class="detail-content"><span class="detail-tag">${esc(c.category)}</span><div class="detail-brand">${esc(c.brand||'Somar Representações')}</div><h2>${esc(c.name)}</h2><p>${esc(c.description||'Consulte o catálogo de produtos da Somar Representações.')}</p><div class="detail-actions"><a class="btn primary big" href="${url}" target="_blank" rel="noopener">👁️ Ver catálogo</a><a class="btn big" href="${url}${url.includes('?')?'&':'?'}download=true">⬇️ Baixar PDF</a><button class="btn big" onclick='shareCatalogById(${js(c.id)})'>📲 Compartilhar</button></div></div></div></div>`;
  document.getElementById('modal').classList.add('open'); document.body.classList.add('modal-open');
@@ -26,9 +26,12 @@ function openCatalog(id){
 function closeCatalog(e){if(e&&e.target!==e.currentTarget)return;document.getElementById('modal').classList.remove('open');document.body.classList.remove('modal-open')}
 async function shareCatalogById(id){
  const c=getCatalog(id); if(!c)return;
- const url=c.pdf_url||''; const text=`Olá! Segue o catálogo ${c.name} da Somar Representações.${url?' '+url:''}`;
- if(navigator.share){try{await navigator.share({title:c.name,text,url:url||location.href});return}catch(e){}}
- if(window.AndroidShare && AndroidShare.shareText){AndroidShare.shareText(text);return;}
+ const url=c.pdf_url||location.href;
+ const text=`Olá! Segue o catálogo ${c.name} da Somar Representações. ${url}`;
+ if(window.AndroidShare && typeof window.AndroidShare.shareText==='function'){
+   try{window.AndroidShare.shareText(text);return;}catch(e){console.warn('Compartilhamento nativo indisponível',e);}
+ }
+ if(navigator.share){try{await navigator.share({title:c.name,text,url});return}catch(e){}}
  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
 }
 async function loadCatalogs(){

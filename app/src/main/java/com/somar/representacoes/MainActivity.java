@@ -79,7 +79,7 @@ public class MainActivity extends Activity {
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setSupportMultipleWindows(false);
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
-        settings.setUserAgentString(settings.getUserAgentString() + " SomarRepresentacoesAndroid/2.0");
+        settings.setUserAgentString(settings.getUserAgentString() + " SomarRepresentacoesAndroid/4.0");
 
         webView.addJavascriptInterface(new AndroidShareBridge(this), "AndroidShare");
         webView.setWebChromeClient(new WebChromeClient());
@@ -150,10 +150,16 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void shareText(String text) {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_TEXT, text == null ? "" : text);
-            context.startActivity(Intent.createChooser(intent, "Compartilhar catálogo"));
+            final String message = text == null ? "" : text;
+            if (context instanceof Activity) {
+                ((Activity) context).runOnUiThread(() -> {
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setType("text/plain");
+                    intent.putExtra(Intent.EXTRA_TEXT, message);
+                    Intent chooser = Intent.createChooser(intent, "Compartilhar catálogo");
+                    context.startActivity(chooser);
+                });
+            }
         }
     }
 
