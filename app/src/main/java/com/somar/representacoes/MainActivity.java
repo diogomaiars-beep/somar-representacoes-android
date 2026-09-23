@@ -73,9 +73,10 @@ public class MainActivity extends Activity {
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setSupportMultipleWindows(false);
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
-        settings.setUserAgentString(settings.getUserAgentString() + " SomarRepresentacoesAndroid/4.0");
+        settings.setUserAgentString(settings.getUserAgentString() + " SomarRepresentacoesAndroid/4.1.1");
 
         webView.addJavascriptInterface(new AndroidShareBridge(this), "AndroidShare");
+        webView.addJavascriptInterface(new AndroidOpenBridge(this), "AndroidOpen");
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -152,6 +153,26 @@ public class MainActivity extends Activity {
                     intent.putExtra(Intent.EXTRA_TEXT, message);
                     Intent chooser = Intent.createChooser(intent, "Compartilhar catálogo");
                     context.startActivity(chooser);
+                });
+            }
+        }
+    }
+
+    public static class AndroidOpenBridge {
+        private final Context context;
+        AndroidOpenBridge(Context context) { this.context = context; }
+
+        @JavascriptInterface
+        public void openUrl(String url) {
+            if (url == null || url.trim().isEmpty()) return;
+            final String target = url.trim();
+            if (context instanceof Activity) {
+                ((Activity) context).runOnUiThread(() -> {
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(target));
+                        context.startActivity(intent);
+                    } catch (Exception ignored) {
+                    }
                 });
             }
         }

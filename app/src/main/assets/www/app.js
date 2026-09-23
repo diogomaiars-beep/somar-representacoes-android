@@ -52,7 +52,8 @@ function render(){
 function getCatalog(id){return catalogs.find(c=>String(c.id)===String(id))}
 function openCatalog(id){
   const c=getCatalog(id); if(!c)return;
-  const url=esc(c.pdf_url||'#');
+  const rawUrl=c.pdf_url||'';
+  const url=esc(rawUrl||'#');
   document.getElementById('modal').innerHTML=`
     <div class="modal-backdrop" onclick="closeCatalog(event)">
       <div class="modal" onclick="event.stopPropagation()">
@@ -64,7 +65,7 @@ function openCatalog(id){
           <h2>${esc(c.name)}</h2>
           <p>${esc(c.description||'Consulte o catálogo de produtos.')}</p>
           <div class="detail-actions">
-            <a class="btn primary big" href="${url}" target="_blank" rel="noopener">◉&nbsp; Ver catálogo</a>
+            <button class="btn primary big" onclick='openCatalogPdf(${js(c.id)})'>◉&nbsp; Ver catálogo</button>
             <a class="btn big" href="${url}${url.includes('?')?'&':'?'}download=true">⇩&nbsp; Baixar PDF</a>
             <button class="btn big share-button" onclick='shareCatalogById(${js(c.id)})'>⌯&nbsp; Compartilhar</button>
           </div>
@@ -76,15 +77,28 @@ function openCatalog(id){
 }
 function closeCatalog(e){if(e&&e.target!==e.currentTarget)return;document.getElementById('modal').classList.remove('open');document.body.classList.remove('modal-open')}
 
+function openCatalogPdf(id){
+  const c=getCatalog(id); if(!c||!c.pdf_url)return;
+  if(window.AndroidOpen&&typeof window.AndroidOpen.openUrl==='function'){
+    window.AndroidOpen.openUrl(c.pdf_url);
+    return;
+  }
+  window.open(c.pdf_url,'_blank','noopener');
+}
+
 async function shareCatalogById(id){
   const c=getCatalog(id); if(!c)return;
   const url=c.pdf_url||location.href;
   const text=`Olá! Segue o catálogo ${c.name} da Somar Representações. ${url}`;
   if(window.AndroidShare&&typeof window.AndroidShare.shareText==='function'){
-    try{window.AndroidShare.shareText(text);return}catch(e){}
+    window.AndroidShare.shareText(text);
+    return;
   }
-  if(navigator.share){try{await navigator.share({title:c.name,text,url});return}catch(e){}}
-  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
+  if(navigator.share){
+    try{await navigator.share({title:c.name,text,url});return}catch(e){}
+  }
+  const wa='https://wa.me/?text='+encodeURIComponent(text);
+  window.location.href=wa;
 }
 
 async function loadCatalogs(){
