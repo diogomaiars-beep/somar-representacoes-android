@@ -1,4 +1,4 @@
-const categories=[['Todos','▦'],['Cama, Mesa e Banho','🛏️'],['Brinquedos','🧸'],['Utilidades','🏠'],['Material Escolar','📚'],['Festas','🎉'],['Natal','🎄'],['Sazonais','☀️']];
+const categories=[['Todos','▦'],['Cama, Mesa e Banho','🛏️'],['Brinquedos','🧸'],['Utilidades','🏠'],['Material Escolar','📚'],['Festas','🎉'],['Natal','🎄'],['Sazonais','☀️'],['Ferramentas','🔧']];
 let active='Todos', catalogs=[];
 const client=supabase.createClient(window.SOMAR_CONFIG.SUPABASE_URL,window.SOMAR_CONFIG.SUPABASE_ANON_KEY);
 
@@ -28,6 +28,7 @@ async function shareCatalogById(id){
  const c=getCatalog(id); if(!c)return;
  const url=c.pdf_url||''; const text=`Olá! Segue o catálogo ${c.name} da Somar Representações.${url?' '+url:''}`;
  if(navigator.share){try{await navigator.share({title:c.name,text,url:url||location.href});return}catch(e){}}
+ if(window.AndroidShare && AndroidShare.shareText){AndroidShare.shareText(text);return;}
  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
 }
 async function loadCatalogs(){
