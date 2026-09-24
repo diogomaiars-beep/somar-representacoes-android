@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setSupportMultipleWindows(false);
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
-        settings.setUserAgentString(settings.getUserAgentString() + " SomarRepresentacoesAndroid/4.1.1");
+        settings.setUserAgentString(settings.getUserAgentString() + " SomarRepresentacoesAndroid/4.1.4");
 
         webView.addJavascriptInterface(new AndroidShareBridge(this), "AndroidShare");
         webView.addJavascriptInterface(new AndroidOpenBridge(this), "AndroidOpen");
@@ -144,16 +144,29 @@ public class MainActivity extends Activity {
         AndroidShareBridge(Context context) { this.context = context; }
 
         @JavascriptInterface
-        public void shareText(String text) {
+        public boolean shareText(String text) {
             final String message = text == null ? "" : text;
-            if (context instanceof Activity) {
+            if (!(context instanceof Activity)) return false;
+            try {
                 ((Activity) context).runOnUiThread(() -> {
-                    Intent intent = new Intent(Intent.ACTION_SEND);
-                    intent.setType("text/plain");
-                    intent.putExtra(Intent.EXTRA_TEXT, message);
-                    Intent chooser = Intent.createChooser(intent, "Compartilhar catálogo");
-                    context.startActivity(chooser);
+                    try {
+                        Intent send = new Intent(Intent.ACTION_SEND);
+                        send.setType("text/plain");
+                        send.putExtra(Intent.EXTRA_TEXT, message);
+                        send.putExtra(Intent.EXTRA_TITLE, "Catálogo Somar Representações");
+                        Intent chooser = Intent.createChooser(send, "Compartilhar catálogo");
+                        ((Activity) context).startActivity(chooser);
+                    } catch (Exception ex) {
+                        try {
+                            Intent wa = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                                "https://wa.me/?text=" + Uri.encode(message)));
+                            ((Activity) context).startActivity(wa);
+                        } catch (Exception ignored) { }
+                    }
                 });
+                return true;
+            } catch (Exception ex) {
+                return false;
             }
         }
     }

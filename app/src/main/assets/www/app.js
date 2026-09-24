@@ -8,10 +8,6 @@ const client=supabase.createClient(window.SOMAR_CONFIG.SUPABASE_URL,window.SOMAR
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function js(v){return JSON.stringify(String(v??''))}
 
-const categoryImages={
-  'Ferramentas':'capa-ferramentas.png'
-};
-
 function renderCats(){
   document.getElementById('cats').innerHTML=categories.map(x=>`
     <button class="cat ${x[0]===active?'active':''}" onclick='selectCat(${js(x[0])})'>
@@ -21,14 +17,8 @@ function renderCats(){
 function selectCat(x){active=x;renderCats();render();document.getElementById('title').textContent=x==='Todos'?'Catálogos':x}
 
 function coverMarkup(c, detail=false){
-  if(c.cover_url){
-    return `<img class="catalog-cover-image" src="${esc(c.cover_url)}" alt="Capa de ${esc(c.name)}" loading="lazy">`;
-  }
-
-  return `<div class="fallback-cover">
-    <strong>${esc(c.category || 'Catálogo')}</strong>
-    <span>Confira o catálogo</span>
-  </div>`;
+  if(c.cover_url) return `<img src="${esc(c.cover_url)}" alt="Capa de ${esc(c.name)}" loading="lazy">`;
+  return `<div class="fallback-cover"><div class="fallback-icon">▦</div><strong>${esc(c.name)}</strong><span>${esc(c.category||'Catálogo')}</span></div>`;
 }
 
 function render(){
@@ -91,38 +81,22 @@ function openCatalogPdf(id){
 }
 
 async function shareCatalogById(id){
-  const c=getCatalog(id);
-  if(!c)return;
-
+  const c=getCatalog(id); if(!c)return;
   const url=c.pdf_url||location.href;
-  const text=`Olá! Segue o catálogo ${c.name} da Somar Representações.\n\n${url}`;
-
-  // Compartilhamento nativo do aplicativo Android
-  if(window.AndroidShare && typeof window.AndroidShare.shareText==='function'){
+  const text=`Olá! Segue o catálogo ${c.name} da Somar Representações. ${url}`;
+  if(window.AndroidShare&&typeof window.AndroidShare.shareText==='function'){
     try{
-      window.AndroidShare.shareText(text);
-      return;
-    }catch(e){
-      console.log('Compartilhamento Android indisponível:',e);
-    }
+      const started=window.AndroidShare.shareText(text);
+      if(started!==false)return;
+    }catch(e){}
   }
-
-  // Compartilhamento do navegador
   if(navigator.share){
-    try{
-      await navigator.share({
-        title:c.name,
-        text:text,
-        url:url
-      });
-      return;
-    }catch(e){
-      console.log('Web Share indisponível:',e);
-    }
+    try{await navigator.share({title:c.name,text,url});return}catch(e){}
   }
-
-  // Último recurso: WhatsApp
   const wa='https://wa.me/?text='+encodeURIComponent(text);
+  if(window.AndroidOpen&&typeof window.AndroidOpen.openUrl==='function'){
+    try{window.AndroidOpen.openUrl(wa);return}catch(e){}
+  }
   window.location.href=wa;
 }
 

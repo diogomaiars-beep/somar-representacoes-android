@@ -1,4 +1,4 @@
-# Somar Representações — Android V4.1.3
+# Somar Representações — Android V4.1.5
 
 Aplicativo de catálogos para a equipe comercial.
 
@@ -9,4 +9,4 @@ Aplicativo de catálogos para a equipe comercial.
 - Compartilhamento nativo do Android.
 - Abrir catálogo e baixar PDF.
 
-Versão: 4.1.3 (versionCode 8)
+Versão: 4.1.5 (versionCode 10)
