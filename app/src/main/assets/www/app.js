@@ -87,16 +87,37 @@ function openCatalogPdf(id){
 }
 
 async function shareCatalogById(id){
-  const c=getCatalog(id); if(!c)return;
+  const c=getCatalog(id);
+  if(!c)return;
+
   const url=c.pdf_url||location.href;
-  const text=`Olá! Segue o catálogo ${c.name} da Somar Representações. ${url}`;
-  if(window.AndroidShare&&typeof window.AndroidShare.shareText==='function'){
-    window.AndroidShare.shareText(text);
-    return;
+  const text=`Olá! Segue o catálogo ${c.name} da Somar Representações.\n\n${url}`;
+
+  // Compartilhamento nativo do aplicativo Android
+  if(window.AndroidShare && typeof window.AndroidShare.shareText==='function'){
+    try{
+      window.AndroidShare.shareText(text);
+      return;
+    }catch(e){
+      console.log('Compartilhamento Android indisponível:',e);
+    }
   }
+
+  // Compartilhamento do navegador
   if(navigator.share){
-    try{await navigator.share({title:c.name,text,url});return}catch(e){}
+    try{
+      await navigator.share({
+        title:c.name,
+        text:text,
+        url:url
+      });
+      return;
+    }catch(e){
+      console.log('Web Share indisponível:',e);
+    }
   }
+
+  // Último recurso: WhatsApp
   const wa='https://wa.me/?text='+encodeURIComponent(text);
   window.location.href=wa;
 }
