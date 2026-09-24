@@ -21,10 +21,14 @@ function renderCats(){
 function selectCat(x){active=x;renderCats();render();document.getElementById('title').textContent=x==='Todos'?'Catálogos':x}
 
 function coverMarkup(c, detail=false){
-  if(c.cover_url) return `<img src="${esc(c.cover_url)}" alt="Capa de ${esc(c.name)}" loading="lazy">`;
-  const local=categoryImages[c.category];
-  if(local) return `<img class="catalog-cover-image" src="${local}" alt="Capa de ${esc(c.name)}" loading="lazy">`;
-  return `<div class="fallback-cover"><div class="fallback-icon">▦</div><strong>${esc(c.name)}</strong><span>${esc(c.category||'Catálogo')}</span></div>`;
+  if(c.cover_url){
+    return `<img class="catalog-cover-image" src="${esc(c.cover_url)}" alt="Capa de ${esc(c.name)}" loading="lazy">`;
+  }
+
+  return `<div class="fallback-cover">
+    <strong>${esc(c.category || 'Catálogo')}</strong>
+    <span>Confira o catálogo</span>
+  </div>`;
 }
 
 function render(){
