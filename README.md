@@ -1,8 +1,12 @@
-# Somar Representações — Android V4.1
+# Somar Representações — Android V4.1.3
 
-Versão **4.1.1**. Interface atualizada sem a logo da Somar no cabeçalho, com capa de Ferramentas Manuais em destaque, categorias em cards e catálogo em formato de apresentação comercial.
+Aplicativo de catálogos para a equipe comercial.
 
-Os catálogos continuam sendo carregados do Supabase.
+- Visual atualizado com cabeçalho azul e foto circular.
+- Removida a capa fixa de Ferramentas da tela inicial.
+- Removido o uso da capa de Ferramentas como fallback de catálogo.
+- Capas reais continuam vindo de `cover_url` quando cadastradas.
+- Compartilhamento nativo do Android.
+- Abrir catálogo e baixar PDF.
 
-
-Correção V4.1.1: botões Ver catálogo e Compartilhar funcionam no APK Android usando pontes nativas.
+Versão: 4.1.3 (versionCode 8)
